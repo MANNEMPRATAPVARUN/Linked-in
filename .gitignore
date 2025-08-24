@@ -1,6 +1,10 @@
 # JobSprint - Job Automation System
 # Ignore sensitive and generated files
 
+# External repositories (embedded)
+Job-apply-AI-agent/
+JobSpy/
+
 # Database files
 *.db
 *.sqlite
