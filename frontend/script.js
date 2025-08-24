@@ -55,6 +55,11 @@ function showLogin() {
     modal.show();
 }
 
+function showSignup() {
+    const modal = new bootstrap.Modal(document.getElementById('signupModal'));
+    modal.show();
+}
+
 function showAdminLogin() {
     const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
     modal.show();
@@ -73,27 +78,35 @@ function showDemo() {
 // API Functions
 async function apiCall(endpoint, options = {}) {
     const url = `${getApiUrl()}${endpoint}`;
-    
+    console.log('🌐 API Call:', { url, endpoint, options });
+
     const defaultOptions = {
         headers: {
             'Content-Type': 'application/json',
         },
         credentials: 'include', // Include cookies for session management
     };
-    
+
     const finalOptions = { ...defaultOptions, ...options };
-    
+    console.log('📡 Final options:', finalOptions);
+
     try {
+        console.log('🚀 Making fetch request...');
         const response = await fetch(url, finalOptions);
+        console.log('📊 Response status:', response.status, response.statusText);
+
         const data = await response.json();
-        
+        console.log('📄 Response data:', data);
+
         if (!response.ok) {
+            console.error('❌ Response not OK:', response.status, data);
             throw new Error(data.error || `HTTP error! status: ${response.status}`);
         }
-        
+
+        console.log('✅ API call successful');
         return data;
     } catch (error) {
-        console.error('API call failed:', error);
+        console.error('❌ API call failed:', error);
         throw error;
     }
 }
@@ -127,6 +140,8 @@ async function login(email, password) {
 }
 
 async function adminLogin(email, password) {
+    console.log('🔐 Admin login attempt:', { email, password: '***' });
+
     if (CONFIG.DEMO_MODE) {
         // Demo mode - simulate successful admin login
         showAlert('🔐 Demo admin login successful! In production, this would authenticate with the Railway API.', 'success');
@@ -135,23 +150,80 @@ async function adminLogin(email, password) {
         }, 2000);
         return;
     }
-    
+
     try {
+        console.log('🚀 Calling API for admin login...');
         const response = await apiCall('/auth/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
-        
+
+        console.log('📊 API response:', response);
+
         if (response.success && response.user.is_admin) {
+            console.log('✅ Admin login successful!');
             showAlert('Admin login successful! Redirecting to admin dashboard...', 'success');
             setTimeout(() => {
                 window.location.href = 'dashboard.html?admin=true';
             }, 1500);
+        } else if (response.success && !response.user.is_admin) {
+            console.log('❌ User is not admin');
+            throw new Error('Admin access required - user is not admin');
         } else {
-            throw new Error('Admin access required');
+            console.log('❌ Login failed');
+            throw new Error(response.error || 'Login failed');
         }
     } catch (error) {
+        console.error('❌ Admin login error:', error);
         showAlert(`Admin login failed: ${error.message}`, 'danger');
+    }
+}
+
+// Registration Functions
+async function signup(name, email, password, passwordConfirm) {
+    console.log('📝 Signup attempt:', { name, email, password: '***' });
+
+    // Validate passwords match
+    if (password !== passwordConfirm) {
+        throw new Error('Passwords do not match');
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+    }
+
+    if (CONFIG.DEMO_MODE) {
+        // Demo mode - simulate successful signup
+        showAlert('🎉 Demo signup successful! In production, this would create your account.', 'success');
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 2000);
+        return;
+    }
+
+    try {
+        console.log('🚀 Calling API for signup...');
+        const response = await apiCall('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ name, email, password })
+        });
+
+        console.log('📊 Signup API response:', response);
+
+        if (response.success) {
+            console.log('✅ Signup successful!');
+            showAlert('Account created successfully! Welcome to JobSprint!', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        } else {
+            console.log('❌ Signup failed');
+            throw new Error(response.error || 'Signup failed');
+        }
+    } catch (error) {
+        console.error('❌ Signup error:', error);
+        throw error;
     }
 }
 
@@ -292,7 +364,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
+    // Signup form handler
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            if (!agreeTerms) {
+                showAlert('Please agree to the Terms of Service and Privacy Policy', 'warning');
+                return;
+            }
+
+            try {
+                startLoading(submitBtn, 'Creating Account...');
+                await signup(name, email, password, passwordConfirm);
+
+                // Close modal on success
+                const modal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                if (modal) modal.hide();
+
+            } catch (error) {
+                showAlert(`Signup failed: ${error.message}`, 'danger');
+                console.error('Signup error:', error);
+            } finally {
+                stopLoading();
+            }
+        });
+    }
+
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {

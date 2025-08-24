@@ -28,10 +28,19 @@
                         <a class="nav-link" href="#features">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#login" onclick="showLogin()">Login</a>
+                        <a class="nav-link" href="#signup" onclick="showSignup()">
+                            <i class="fas fa-user-plus me-1"></i>Sign Up
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#admin" onclick="showAdminLogin()">Admin</a>
+                        <a class="nav-link" href="#login" onclick="showLogin()">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#admin" onclick="showAdminLogin()">
+                            <i class="fas fa-shield-alt me-1"></i>Admin
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -51,8 +60,8 @@
                         Optimized for the Canadian job market with intelligent location targeting.
                     </p>
                     <div class="d-flex gap-3 mb-4">
-                        <button class="btn btn-light btn-lg" onclick="showLogin()">
-                            <i class="fas fa-user me-2"></i>Get Started
+                        <button class="btn btn-light btn-lg" onclick="showSignup()">
+                            <i class="fas fa-user-plus me-2"></i>Get Started
                         </button>
                         <button class="btn btn-outline-light btn-lg" onclick="showDemo()">
                             <i class="fas fa-play me-2"></i>View Demo
@@ -264,6 +273,55 @@
                             <i class="fas fa-shield-alt me-2"></i>Admin Login
                         </button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="signupForm">
+                        <div class="mb-3">
+                            <label for="signupName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="signupName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupEmail" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="signupEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="signupPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupPasswordConfirm" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="signupPasswordConfirm" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                I agree to the Terms of Service and Privacy Policy
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Already have an account?
+                            <a href="#" onclick="showLogin(); return false;">Login here</a>
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>

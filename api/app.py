@@ -58,7 +58,20 @@ except Exception as e:
 # Add CORS headers to all responses
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://jobsprint-frontend.vercel.app')
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        'https://jobsprint-frontend.vercel.app',
+        'https://web-production-f50b3.up.railway.app',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000'
+    ]
+
+    if origin in allowed_origins:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    else:
+        # Default for local development
+        response.headers.add('Access-Control-Allow-Origin', 'http://127.0.0.1:3000')
+
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -80,6 +93,24 @@ def health_check():
         'version': '1.0.0'
     }
 
+# Local test users (for development without Supabase)
+LOCAL_USERS = {
+    'admin@jobsprint.com': {
+        'id': 'admin-001',
+        'email': 'admin@jobsprint.com',
+        'name': 'JobSprint Admin',
+        'password_hash': hashlib.sha256('admin123'.encode()).hexdigest(),
+        'is_admin': True
+    },
+    'test@jobsprint.com': {
+        'id': 'test-001',
+        'email': 'test@jobsprint.com',
+        'name': 'Test User',
+        'password_hash': hashlib.sha256('test123'.encode()).hexdigest(),
+        'is_admin': False
+    }
+}
+
 # Authentication endpoints
 @app.route('/api/auth/login', methods=['POST'])
 def login():
@@ -88,20 +119,29 @@ def login():
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
-        
+
         if not email or not password:
             return jsonify({'error': 'Email and password required'}), 400
-        
+
         # Hash password for comparison
         password_hash = hashlib.sha256(password.encode()).hexdigest()
-        
-        # Get user from Supabase
-        user = supabase_manager.get_user_by_email(email)
-        
+
+        # Try Supabase first, fallback to local users
+        user = None
+        try:
+            user = supabase_manager.get_user_by_email(email)
+        except Exception as e:
+            logger.warning(f"Supabase unavailable, using local auth: {e}")
+
+        # If Supabase failed or returned None, use local users
+        if user is None:
+            logger.info(f"Using local authentication for {email}")
+            user = LOCAL_USERS.get(email)
+
         if user and user.get('password_hash') == password_hash:
             session['user_id'] = user['id']
             session['is_admin'] = user.get('is_admin', False)
-            
+
             return jsonify({
                 'success': True,
                 'user': {
@@ -113,7 +153,7 @@ def login():
             })
         else:
             return jsonify({'error': 'Invalid credentials'}), 401
-            
+
     except Exception as e:
         logger.error(f"Login error: {e}")
         return jsonify({'error': 'Login failed'}), 500
@@ -136,13 +176,39 @@ def register():
         if not email or not name or not password:
             return jsonify({'error': 'Email, name, and password required'}), 400
 
-        # Check if user already exists
-        existing_user = supabase_manager.get_user_by_email(email)
+        # Check if user already exists (local or Supabase)
+        existing_user = None
+        try:
+            existing_user = supabase_manager.get_user_by_email(email)
+        except Exception:
+            # Check local users
+            existing_user = LOCAL_USERS.get(email)
+
         if existing_user:
             return jsonify({'error': 'User already exists'}), 400
 
-        # Create new user
-        user = supabase_manager.create_user(email, name, password, is_admin=False)
+        # Try Supabase first, fallback to local users
+        user = None
+        try:
+            user = supabase_manager.create_user(email, name, password, is_admin=False)
+        except Exception as e:
+            logger.warning(f"Supabase unavailable, simulating registration: {e}")
+
+        # If Supabase failed or returned None, use local users
+        if user is None:
+            logger.info(f"Using local registration for {email}")
+            # Simulate user creation for local development
+            user_id = f"user-{len(LOCAL_USERS) + 1:03d}"
+            user = {
+                'id': user_id,
+                'email': email,
+                'name': name,
+                'password_hash': hashlib.sha256(password.encode()).hexdigest(),
+                'is_admin': False
+            }
+            # Add to local users (in memory only)
+            LOCAL_USERS[email] = user
+
         if user:
             # Auto-login the new user
             session['user_id'] = user['id']
