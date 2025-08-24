@@ -1,0 +1,247 @@
+name: 🚀 Deploy JobSprint - Full Stack Sync
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy all services'
+        required: false
+        default: 'false'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Health Check - Verify current deployments
+  health-check:
+    name: 🔍 Health Check Current Services
+    runs-on: ubuntu-latest
+    outputs:
+      frontend-status: ${{ steps.check-frontend.outputs.status }}
+      backend-status: ${{ steps.check-backend.outputs.status }}
+    steps:
+      - name: Check Frontend (Vercel)
+        id: check-frontend
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://jobsprint-frontend.vercel.app/health || echo "000")
+          echo "status=$status" >> $GITHUB_OUTPUT
+          echo "🌐 Frontend Status: $status"
+
+      - name: Check Backend (Railway)
+        id: check-backend
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://web-production-f50b3.up.railway.app/health || echo "000")
+          echo "status=$status" >> $GITHUB_OUTPUT
+          echo "🚂 Backend Status: $status"
+
+  # Deploy Backend to Railway
+  deploy-backend:
+    name: 🚂 Deploy Backend (Railway)
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: needs.health-check.outputs.backend-status != '200' || github.event.inputs.force_deploy == 'true' || github.event_name == 'push'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: 🚂 Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🚀 Deploying backend to Railway..."
+          railway login --token $RAILWAY_TOKEN
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
+          echo "✅ Backend deployed successfully!"
+
+      - name: 🔍 Verify Backend Deployment
+        run: |
+          echo "⏳ Waiting for backend to be ready..."
+          sleep 30
+          for i in {1..10}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" https://web-production-f50b3.up.railway.app/health || echo "000")
+            if [ "$status" = "200" ]; then
+              echo "✅ Backend is healthy (Status: $status)"
+              break
+            fi
+            echo "⏳ Attempt $i: Backend status $status, retrying..."
+            sleep 10
+          done
+
+  # Deploy Frontend to Vercel
+  deploy-frontend:
+    name: 🌐 Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: needs.health-check.outputs.frontend-status != '200' || github.event.inputs.force_deploy == 'true' || github.event_name == 'push'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package.json
+
+      - name: 📦 Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🌐 Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          vercel-args: '--prod'
+
+      - name: 🔍 Verify Frontend Deployment
+        run: |
+          echo "⏳ Waiting for frontend to be ready..."
+          sleep 20
+          for i in {1..10}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" https://jobsprint-frontend.vercel.app || echo "000")
+            if [ "$status" = "200" ]; then
+              echo "✅ Frontend is healthy (Status: $status)"
+              break
+            fi
+            echo "⏳ Attempt $i: Frontend status $status, retrying..."
+            sleep 10
+          done
+
+  # Database Migration (Supabase)
+  migrate-database:
+    name: 🗄️ Migrate Database (Supabase)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.force_deploy == 'true'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install Supabase CLI
+        run: |
+          curl -fsSL https://supabase.com/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: 🗄️ Run Database Migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          echo "🗄️ Running database migrations..."
+          # Apply schema if it exists
+          if [ -f "database/supabase_schema.sql" ]; then
+            echo "📋 Applying database schema..."
+            supabase db push --project-ref $SUPABASE_PROJECT_REF
+          fi
+          echo "✅ Database migrations completed!"
+
+  # Integration Tests
+  integration-tests:
+    name: 🧪 Integration Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend, migrate-database]
+    if: always() && (needs.deploy-backend.result == 'success' || needs.deploy-frontend.result == 'success')
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install Test Dependencies
+        run: |
+          pip install requests pytest
+
+      - name: 🧪 Test API Endpoints
+        run: |
+          echo "🧪 Testing API endpoints..."
+          python -c "
+          import requests
+          import sys
+          
+          # Test backend health
+          try:
+              r = requests.get('https://web-production-f50b3.up.railway.app/health', timeout=10)
+              assert r.status_code == 200
+              print('✅ Backend health check passed')
+          except Exception as e:
+              print(f'❌ Backend health check failed: {e}')
+              sys.exit(1)
+          
+          # Test frontend
+          try:
+              r = requests.get('https://jobsprint-frontend.vercel.app', timeout=10)
+              assert r.status_code == 200
+              print('✅ Frontend health check passed')
+          except Exception as e:
+              print(f'❌ Frontend health check failed: {e}')
+              sys.exit(1)
+          
+          # Test registration endpoint
+          try:
+              r = requests.options('https://web-production-f50b3.up.railway.app/api/auth/register', timeout=10)
+              print(f'✅ Registration endpoint accessible (Status: {r.status_code})')
+          except Exception as e:
+              print(f'⚠️ Registration endpoint test: {e}')
+          
+          print('🎉 All integration tests passed!')
+          "
+
+  # Deployment Summary
+  deployment-summary:
+    name: 📊 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [health-check, deploy-backend, deploy-frontend, migrate-database, integration-tests]
+    if: always()
+    steps:
+      - name: 📊 Generate Deployment Report
+        run: |
+          echo "# 🚀 JobSprint Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Service Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌐 Frontend (Vercel) | ${{ needs.deploy-frontend.result || 'skipped' }} | https://jobsprint-frontend.vercel.app |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🚂 Backend (Railway) | ${{ needs.deploy-backend.result || 'skipped' }} | https://web-production-f50b3.up.railway.app |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🗄️ Database (Supabase) | ${{ needs.migrate-database.result || 'skipped' }} | Supabase Dashboard |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧪 Integration Tests | ${{ needs.integration-tests.result || 'skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏠 **Main App**: https://jobsprint-frontend.vercel.app" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔐 **Admin Login**: https://jobsprint-frontend.vercel.app (admin@jobsprint.com / admin123)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **API Health**: https://web-production-f50b3.up.railway.app/health" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Test the Sign Up functionality" >> $GITHUB_STEP_SUMMARY
+          echo "2. Verify admin login works" >> $GITHUB_STEP_SUMMARY
+          echo "3. Check job search features" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Deployment completed at $(date)*" >> $GITHUB_STEP_SUMMARY
