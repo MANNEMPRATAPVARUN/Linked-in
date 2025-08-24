@@ -124,6 +124,47 @@ def logout():
     session.clear()
     return jsonify({'success': True})
 
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """User registration endpoint"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        name = data.get('name')
+        password = data.get('password')
+
+        if not email or not name or not password:
+            return jsonify({'error': 'Email, name, and password required'}), 400
+
+        # Check if user already exists
+        existing_user = supabase_manager.get_user_by_email(email)
+        if existing_user:
+            return jsonify({'error': 'User already exists'}), 400
+
+        # Create new user
+        user = supabase_manager.create_user(email, name, password, is_admin=False)
+        if user:
+            # Auto-login the new user
+            session['user_id'] = user['id']
+            session['is_admin'] = user.get('is_admin', False)
+
+            return jsonify({
+                'success': True,
+                'message': 'Registration successful',
+                'user': {
+                    'id': user['id'],
+                    'email': user['email'],
+                    'name': user['name'],
+                    'is_admin': user.get('is_admin', False)
+                }
+            })
+        else:
+            return jsonify({'error': 'Registration failed'}), 500
+
+    except Exception as e:
+        logger.error(f"Registration error: {e}")
+        return jsonify({'error': 'Registration failed'}), 500
+
 # User management endpoints
 @app.route('/api/users', methods=['GET'])
 def get_users():

@@ -31,6 +31,9 @@
                         <a class="nav-link" href="#login" onclick="showLogin()">Login</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="#signup" onclick="showRegister()">Sign Up</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#admin" onclick="showAdminLogin()">Admin</a>
                     </li>
                 </ul>
@@ -234,6 +237,42 @@
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="registerName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                        <p class="text-center mt-3">
+                            Already have an account? <a href="#" onclick="closeRegisterModal(); showLogin();">Login here</a>
+                        </p>
                     </form>
                 </div>
             </div>

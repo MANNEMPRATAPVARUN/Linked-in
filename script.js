@@ -60,6 +60,16 @@ function showAdminLogin() {
     modal.show();
 }
 
+function showRegister() {
+    const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+    modal.show();
+}
+
+function closeRegisterModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+    if (modal) modal.hide();
+}
+
 function showDemo() {
     showAlert(`
         <strong>🚀 Demo Mode Active!</strong><br>
@@ -270,7 +280,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
+    // Registration form handler
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            const stopLoading = showLoading(submitBtn);
+
+            try {
+                const response = await fetch(`${getApiUrl()}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Account created successfully! Welcome to JobSprint!', 'success');
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    modal.hide();
+
+                    // Redirect to dashboard
+                    window.location.href = '/dashboard.html';
+                } else {
+                    showAlert(result.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('Registration failed. Please try again.', 'error');
+            } finally {
+                stopLoading();
+            }
+        });
+    }
+
     // Admin login form handler
     const adminLoginForm = document.getElementById('adminLoginForm');
     if (adminLoginForm) {
