@@ -1,0 +1,19 @@
+{
+  "supabase": {
+    "url": "https://eazuowqlkqijpmcimkcz.supabase.co",
+    "anon_key": "YOUR_SUPABASE_ANON_KEY_HERE",
+    "service_role_key": "YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE",
+    "project_id": "eazuowqlkqijpmcimkcz"
+  },
+  "database": {
+    "schema_created": false,
+    "admin_user_created": false
+  },
+  "instructions": {
+    "step_1": "Go to https://supabase.com/dashboard/project/eazuowqlkqijpmcimkcz/settings/api",
+    "step_2": "Copy the 'anon public' key and replace YOUR_SUPABASE_ANON_KEY_HERE",
+    "step_3": "Copy the 'service_role' key and replace YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE",
+    "step_4": "Go to SQL Editor and run the schema from database/supabase_schema.sql",
+    "step_5": "Update schema_created to true after running the SQL"
+  }
+}

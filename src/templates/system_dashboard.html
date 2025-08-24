@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}System Dashboard - JobSprint{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>JobSprint System Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            {% if system_info.search_engine.is_running %}
+                <form method="POST" action="{{ url_for('stop_integrated_search') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-stop me-2"></i>Stop Search Engine
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('start_integrated_search') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-play me-2"></i>Start Search Engine
+                    </button>
+                </form>
+            {% endif %}
+            <button type="button" class="btn btn-outline-secondary" onclick="refreshSystemHealth()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- System Health Status -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>System Health</h5>
+                <span class="badge bg-{{ 'success' if system_info.system_health.status == 'healthy' else 'warning' if system_info.system_health.status == 'warning' else 'danger' }} fs-6">
+                    {{ system_info.system_health.status.title() }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for component, health in system_info.system_health.components.items() %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-{{ 'success' if health.status == 'healthy' else 'warning' if health.status == 'warning' else 'danger' }}">
+                            <div class="card-body text-center">
+                                <i class="fas fa-{{ 'check-circle' if health.status == 'healthy' else 'exclamation-triangle' if health.status == 'warning' else 'times-circle' }} fa-2x mb-2 text-{{ 'success' if health.status == 'healthy' else 'warning' if health.status == 'warning' else 'danger' }}"></i>
+                                <h6 class="card-title">{{ component.replace('_', ' ').title() }}</h6>
+                                <small class="text-muted">{{ health.message }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <div class="stat-number">{{ system_info.users.total_users or 0 }}</div>
+                <div>Total Users</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-user-check fa-2x mb-2"></i>
+                <div class="stat-number">{{ system_info.users.active_users or 0 }}</div>
+                <div>Active Users</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-briefcase fa-2x mb-2"></i>
+                <div class="stat-number">{{ system_info.users.total_jobs or 0 }}</div>
+                <div>Total Jobs</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-envelope fa-2x mb-2"></i>
+                <div class="stat-number">{{ system_info.users.total_notifications or 0 }}</div>
+                <div>Notifications Sent</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Engine Status -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i>Search Engine Status</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Status:</dt>
+                    <dd class="col-sm-6">
+                        {% if system_info.search_engine.is_running %}
+                            <span class="badge bg-success">Running</span>
+                        {% else %}
+                            <span class="badge bg-danger">Stopped</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-6">Active Users:</dt>
+                    <dd class="col-sm-6">{{ system_info.search_engine.active_users or 0 }}</dd>
+                    
+                    <dt class="col-sm-6">Scheduled Searches:</dt>
+                    <dd class="col-sm-6">{{ system_info.search_engine.scheduled_searches or 0 }}</dd>
+                    
+                    <dt class="col-sm-6">Rate Limit:</dt>
+                    <dd class="col-sm-6">
+                        {{ system_info.search_engine.rate_limit_status.requests_last_minute or 0 }}/{{ system_info.search_engine.rate_limit_status.limit or 10 }} per minute
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>System Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                    <a href="{{ url_for('admin_create_user') }}" class="btn btn-outline-success">
+                        <i class="fas fa-user-plus me-2"></i>Add New User
+                    </a>
+                    <button class="btn btn-outline-info" onclick="testAllUserSearches()">
+                        <i class="fas fa-play me-2"></i>Test All User Searches
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="refreshSystemHealth()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh System Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Search Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if system_info.search_engine.last_search_times %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Last Search</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_id, last_search in system_info.search_engine.last_search_times.items() %}
+                            <tr>
+                                <td><code>{{ user_id[:8] }}...</code></td>
+                                <td>
+                                    {% if last_search %}
+                                        <small class="text-muted">{{ last_search[:19] }}</small>
+                                    {% else %}
+                                        <small class="text-muted">Never</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Active</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="testUserSearch('{{ user_id }}')">
+                                        <i class="fas fa-play"></i> Test
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No recent search activity</p>
+                    {% if not system_info.search_engine.is_running %}
+                    <p class="text-muted">Start the search engine to begin monitoring user searches.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>JobSprint Features</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>LinkedIn Integration</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Multi-User System</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Continuous Search</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Email Notifications</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Quality Filtering</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>System Status</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Version:</strong> 2.0.0</li>
+                            <li><strong>Database:</strong> SQLite Multi-User</li>
+                            <li><strong>LinkedIn Scraper:</strong> Free Tier</li>
+                            <li><strong>Email System:</strong> SMTP</li>
+                            <li><strong>Web Interface:</strong> Flask + Bootstrap</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Health Check</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Last Updated:</strong> {{ system_info.system_health.timestamp[:19] }}</li>
+                            <li><strong>Overall Status:</strong> 
+                                <span class="badge bg-{{ 'success' if system_info.system_health.status == 'healthy' else 'warning' if system_info.system_health.status == 'warning' else 'danger' }}">
+                                    {{ system_info.system_health.status.title() }}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshSystemHealth() {
+    fetch('/system/api/health')
+        .then(response => response.json())
+        .then(data => {
+            // Refresh the page to show updated health status
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error refreshing system health:', error);
+            alert('Error refreshing system health');
+        });
+}
+
+function testUserSearch(userId) {
+    fetch(`/system/test-search/${userId}`, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Test search started for user');
+        } else {
+            alert('Error starting test search');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error starting test search');
+    });
+}
+
+function testAllUserSearches() {
+    if (confirm('This will run a test search for all active users. This may take several minutes. Continue?')) {
+        // Get all user IDs from the table
+        const userRows = document.querySelectorAll('tbody tr');
+        let userIds = [];
+        
+        userRows.forEach(row => {
+            const userIdCell = row.querySelector('code');
+            if (userIdCell) {
+                // This is a simplified approach - in reality we'd need the full user ID
+                alert('Test all users functionality will be implemented');
+                return;
+            }
+        });
+    }
+}
+
+// Auto-refresh system health every 60 seconds
+setInterval(refreshSystemHealth, 60000);
+</script>
+{% endblock %}

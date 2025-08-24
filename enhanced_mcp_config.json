@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\user\\Desktop\\Projects\\Linked-in"],
+      "description": "File system access for the LinkedIn job automation project"
+    },
+    "memory": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Persistent memory for storing job search preferences and history"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-github-token-here"
+      },
+      "description": "GitHub integration for managing the job automation repository"
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "C:\\Users\\user\\Desktop\\Projects\\Linked-in\\jobs.db"],
+      "description": "SQLite database access for job storage and analytics"
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "description": "Advanced browser automation for LinkedIn scraping with stealth capabilities"
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_SEARCH_API_KEY": "free-tier-available"
+      },
+      "description": "Web search capabilities for job discovery and research"
+    },
+    "everything": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"],
+      "description": "Enhanced system search and file operations"
+    }
+  },
+  "globalShortcut": "Ctrl+Shift+Space"
+}

@@ -1,0 +1,66 @@
+{
+  "email": {
+    "sender_email": "pratapvarunm@gmail.com",
+    "sender_password": "deim imrj vlsq vkun",
+    "sender_name": "JobSprint Automation",
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "enabled": true,
+    "test_mode": false
+  },
+  "system": {
+    "name": "JobSprint",
+    "version": "2.0.0",
+    "admin_email": "admin@jobsprint.com"
+  },
+  "job_preferences": {
+    "keywords": [
+      "software engineer",
+      "python developer",
+      "java developer",
+      "full stack developer",
+      "backend developer",
+      "frontend developer",
+      "site reliability engineer",
+      "devops engineer",
+      "cloud engineer"
+    ],
+    "locations": [
+      "Remote",
+      "San Francisco, CA",
+      "New York, NY",
+      "Seattle, WA",
+      "Austin, TX"
+    ],
+    "job_types": [
+      "fulltime",
+      "contract"
+    ],
+    "exclude_keywords": [
+      "senior",
+      "lead"
+    ],
+    "min_salary": 80000,
+    "max_hours_old": 24
+  },
+  "scraping": {
+    "sites": [
+      "linkedin",
+      "indeed",
+      "glassdoor"
+    ],
+    "results_per_site": 20,
+    "check_interval_minutes": 15,
+    "use_proxies": false,
+    "proxies": []
+  },
+  "linkedin_settings": {
+    "max_results_per_search": 30,
+    "min_quality_score": 65,
+    "enable_selenium_fallback": true,
+    "respect_rate_limits": true,
+    "delay_between_searches": [3, 7],
+    "priority_keywords": ["senior", "lead", "principal", "architect"],
+    "exclude_companies": ["staffing", "recruiting", "temp"]
+  }
+}

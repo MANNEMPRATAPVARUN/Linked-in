@@ -1,0 +1,178 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Edit User - JobSprint{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user-edit me-2"></i>Edit User</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Users
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" readonly>
+                        </div>
+                        <div class="form-text">Email cannot be changed after account creation.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subscription_tier" class="form-label">Subscription Tier</label>
+                        <select class="form-select" id="subscription_tier" name="subscription_tier">
+                            <option value="free" {% if user.subscription_tier == 'free' %}selected{% endif %}>Free</option>
+                            <option value="premium" {% if user.subscription_tier == 'premium' %}selected{% endif %}>Premium</option>
+                            <option value="enterprise" {% if user.subscription_tier == 'enterprise' %}selected{% endif %}>Enterprise</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if user.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                <strong>Active Account</strong>
+                            </label>
+                            <div class="form-text">Inactive users cannot login or receive job notifications.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin" {% if user.is_admin %}checked{% endif %}>
+                            <label class="form-check-label" for="is_admin">
+                                <strong>Administrator</strong>
+                            </label>
+                            <div class="form-text">Administrators can manage users and system settings.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary me-md-2">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- User Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>User Statistics</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Account Created:</dt>
+                    <dd class="col-sm-6">{{ user.created_at[:10] if user.created_at else 'N/A' }}</dd>
+                    
+                    <dt class="col-sm-6">User ID:</dt>
+                    <dd class="col-sm-6"><code>{{ user.id[:8] }}...</code></dd>
+                    
+                    <dt class="col-sm-6">Current Status:</dt>
+                    <dd class="col-sm-6">
+                        {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-6">Account Type:</dt>
+                    <dd class="col-sm-6">
+                        {% if user.is_admin %}
+                            <span class="badge bg-danger">Administrator</span>
+                        {% else %}
+                            <span class="badge bg-primary">User</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_user_preferences', user_id=user.id) }}" class="btn btn-outline-info">
+                        <i class="fas fa-cog me-2"></i>View User Preferences
+                    </a>
+                    <button class="btn btn-outline-warning" onclick="resetUserPassword()">
+                        <i class="fas fa-key me-2"></i>Reset Password
+                    </button>
+                    {% if user.id != current_user.user_id %}
+                    <button class="btn btn-outline-danger" onclick="confirmDelete('{{ user.id }}', '{{ user.email }}')">
+                        <i class="fas fa-trash me-2"></i>Delete User
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete user <strong id="deleteUserEmail"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone and will delete all user data.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(userId, userEmail) {
+    document.getElementById('deleteUserEmail').textContent = userEmail;
+    document.getElementById('deleteForm').action = `/admin/users/${userId}/delete`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+function resetUserPassword() {
+    alert('Password reset functionality will be implemented in the next update.');
+}
+</script>
+{% endblock %}

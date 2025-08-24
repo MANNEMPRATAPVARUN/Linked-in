@@ -1,0 +1,9 @@
+2025-08-23 14:02:48,137 - email - INFO - setup_logging.py:111 - 📧 Email Configuration Debug:
+2025-08-23 14:02:48,139 - email - INFO - setup_logging.py:112 -    SMTP Server: smtp.gmail.com
+2025-08-23 14:02:48,139 - email - INFO - setup_logging.py:113 -    SMTP Port: 587
+2025-08-23 14:02:48,140 - email - INFO - setup_logging.py:114 -    Sender Email: pratapvarunmjk@gmail.com
+2025-08-23 14:02:48,141 - email - INFO - setup_logging.py:115 -    Password Length: 12 characters
+2025-08-23 14:02:48,141 - email - INFO - setup_logging.py:116 -    Recipients: 5 configured
+2025-08-23 14:02:48,145 - email - WARNING - setup_logging.py:124 -    ⚠️ Password might not be Gmail App Password format
+2025-08-23 14:02:48,147 - email - WARNING - setup_logging.py:125 -    💡 Gmail App Passwords are 16 characters, letters and numbers only
+2025-08-23 14:02:48,156 - email - ERROR - fix_email_setup.py:51 - Regular Gmail password detected instead of App Password
