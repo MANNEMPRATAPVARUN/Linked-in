@@ -23,13 +23,14 @@ except Exception as e:
     print(f"   ❌ Basic imports failed: {e}")
     sys.exit(1)
 
-# Test 2: JobSpy import
-print("2. Testing JobSpy import...")
+# Test 2: Our independent LinkedIn scraper import
+print("2. Testing our independent LinkedIn scraper...")
 try:
-    from jobspy import scrape_jobs
-    print("   ✅ JobSpy import successful")
+    sys.path.append('src')
+    from linkedin_scraper_free import LinkedInScraperFree
+    print("   ✅ Independent LinkedIn scraper import successful")
 except Exception as e:
-    print(f"   ❌ JobSpy import failed: {e}")
+    print(f"   ❌ LinkedIn scraper import failed: {e}")
     sys.exit(1)
 
 # Test 3: Email imports

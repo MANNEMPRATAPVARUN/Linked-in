@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-LinkedIn Job Automation System
-==============================
+JobSprint - Independent Job Automation System
+=============================================
 
 A comprehensive job automation system that:
-- Scrapes jobs from LinkedIn, Indeed, Glassdoor, ZipRecruiter, and Google
+- Scrapes jobs from LinkedIn using our own independent implementation
+- Ultra-recent filtering (5-10 minutes) for first applicant advantage
+- Canada-specific location targeting and optimization
 - Filters jobs based on your keywords and preferences
 - Sends instant email notifications for new matching jobs
 - Tracks sent notifications to avoid duplicates
 - Provides real-time monitoring every 5-15 minutes
 
-Built with JobSpy, Gmail SMTP, and advanced filtering.
+Built with our own LinkedIn scraper, Gmail SMTP, and advanced filtering.
+NO EXTERNAL JOB SCRAPING DEPENDENCIES - COMPLETELY SELF-SUFFICIENT!
 """
 
 import os
@@ -32,9 +35,8 @@ import email.mime.multipart
 MimeText = email.mime.text.MIMEText
 MimeMultipart = email.mime.multipart.MIMEMultipart
 
-# Add JobSpy to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'JobSpy'))
-from jobspy import scrape_jobs
+# Import our own LinkedIn scraper (no external dependencies!)
+from linkedin_scraper_free import LinkedInScraperFree
 
 # Configure logging
 logging.basicConfig(
@@ -193,29 +195,10 @@ class JobAutomationSystem:
                         except Exception as e:
                             logger.warning(f"Enhanced LinkedIn scraper failed: {e}")
 
-                    # Priority 2: Other sites (Indeed, Glassdoor) - Use JobSpy
-                    other_sites = [site for site in self.config["scraping"]["sites"] if site != 'linkedin']
-
-                    if other_sites:
-                        try:
-                            jobs = scrape_jobs(
-                                site_name=other_sites,
-                                search_term=keyword,
-                                location=location,
-                                results_wanted=self.config["scraping"]["results_per_site"] // 2,  # Reduce since we have LinkedIn
-                                hours_old=self.config["job_preferences"]["max_hours_old"],
-                                proxies=self.config["scraping"]["proxies"] if self.config["scraping"]["use_proxies"] else None,
-                                verbose=1
-                            )
-
-                            if not jobs.empty:
-                                jobs['search_keyword'] = keyword
-                                jobs['search_location'] = location
-                                all_jobs = pd.concat([all_jobs, jobs], ignore_index=True)
-                                logger.info(f"Other sites: Found {len(jobs)} jobs")
-
-                        except Exception as e:
-                            logger.warning(f"JobSpy scraping failed: {e}")
+                    # Priority 2: Focus on LinkedIn only (our independent implementation)
+                    # Note: We've removed dependency on external job scraping libraries
+                    # Our LinkedIn scraper is comprehensive and independent
+                    logger.info(f"Using independent LinkedIn scraper only - no external dependencies!")
 
                 except Exception as e:
                     logger.error(f"Error scraping jobs for '{keyword}' in '{location}': {e}")

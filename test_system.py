@@ -61,29 +61,29 @@ def test_database_init():
         print(f"❌ Database initialization failed: {e}")
         return False
 
-def test_jobspy_import():
-    """Test JobSpy import and basic functionality"""
-    print("🧪 Testing JobSpy integration...")
-    
+def test_independent_linkedin_scraper():
+    """Test our independent LinkedIn scraper"""
+    print("🧪 Testing our independent LinkedIn scraper...")
+
     try:
-        # Add JobSpy to path
-        sys.path.append('JobSpy')
-        from jobspy import scrape_jobs
-        
+        # Import our own scraper
+        sys.path.append('src')
+        from linkedin_scraper_free import LinkedInScraperFree
+
         # Test basic scraping (small test)
-        jobs = scrape_jobs(
-            site_name=["indeed"],
-            search_term="python developer",
+        scraper = LinkedInScraperFree()
+        jobs = scraper.method_1_guest_api(
+            keywords="python developer",
             location="Remote",
-            results_wanted=2,
-            verbose=0
+            max_results=2,
+            time_filter='r86400'  # Last 24 hours for testing
         )
-        
-        print(f"✅ JobSpy integration works! Found {len(jobs)} test jobs")
+
+        print(f"✅ Independent LinkedIn scraper works! Found {len(jobs)} test jobs")
+        print("✅ No external dependencies - completely self-sufficient!")
         return True
     except Exception as e:
-        print(f"❌ JobSpy integration failed: {e}")
-        print("Make sure you've run: python setup.py")
+        print(f"❌ Independent LinkedIn scraper failed: {e}")
         return False
 
 def test_email_content_generation():
@@ -172,7 +172,7 @@ def run_all_tests():
     tests = [
         test_config_loading,
         test_database_init,
-        test_jobspy_import,
+        test_independent_linkedin_scraper,
         test_email_content_generation,
         test_job_filtering
     ]
