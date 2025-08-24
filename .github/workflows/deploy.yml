@@ -64,8 +64,6 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           echo "🚀 Deploying backend to Railway..."
-          railway login --token $RAILWAY_TOKEN
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
           railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
           echo "✅ Backend deployed successfully!"
 
@@ -102,7 +100,7 @@ jobs:
 
       - name: 📦 Install Dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install
 
       - name: 🌐 Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -143,8 +141,8 @@ jobs:
 
       - name: 📦 Install Supabase CLI
         run: |
-          curl -fsSL https://supabase.com/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          npm install -g supabase
+          echo "✅ Supabase CLI installed"
 
       - name: 🗄️ Run Database Migrations
         env:
