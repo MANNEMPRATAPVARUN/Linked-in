@@ -1,0 +1,23 @@
+{
+  "name": "jobsprint-frontend",
+  "version": "1.0.0",
+  "description": "JobSprint Ultra-Recent Job Automation Frontend",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Static site - no build required'",
+    "start": "echo 'Static site - no start command'"
+  },
+  "keywords": [
+    "job-automation",
+    "linkedin-scraper",
+    "canada-jobs",
+    "ultra-recent-filtering",
+    "job-search"
+  ],
+  "author": "JobSprint Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MANNEMPRATAPVARUN/Linked-in.git"
+  }
+}
