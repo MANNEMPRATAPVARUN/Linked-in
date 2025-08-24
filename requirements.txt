@@ -1,16 +1,25 @@
-# JobSprint - Independent Job Automation System
-# No external job scraping dependencies - completely self-sufficient!
+# JobSprint - Production API Dependencies
+# Independent job automation system - completely self-sufficient!
 
 # Core dependencies
 pandas>=1.5.0
 schedule>=1.2.0
 
+# Production web server
+gunicorn>=21.2.0
+
+# Web framework and API
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Database - Supabase integration
+supabase>=2.0.0
+psycopg2-binary>=2.9.0
+
 # Email functionality
 secure-smtplib>=0.1.1
 
-# Database (sqlite3 is built into Python)
-
-# Logging and utilities
+# Environment management
 python-dotenv>=1.0.0
 
 # Web scraping dependencies (our own implementation)
@@ -21,11 +30,11 @@ webdriver-manager>=3.8.0
 lxml>=4.9.0
 fake-useragent>=1.4.0
 
-# Web interface
-flask>=2.3.0
+# Additional dependencies for enhanced features
+feedparser>=6.0.0  # For RSS job feeds (backup method)
 
 # Optional: For advanced features
 python-crontab>=2.7.0  # For system-level scheduling
 
-# Additional dependencies for our enhanced features
-feedparser>=6.0.0  # For RSS job feeds (backup method)
+# Security and validation
+werkzeug>=2.3.0

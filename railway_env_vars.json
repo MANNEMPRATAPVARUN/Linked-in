@@ -1,0 +1,19 @@
+{
+  "FLASK_ENV": "production",
+  "FLASK_DEBUG": "False",
+  "SECRET_KEY": "CHANGE_THIS_SECRET_KEY_IN_RAILWAY_DASHBOARD",
+  "SUPABASE_URL": "https://eazuowqlkqijpmcimkcz.supabase.co",
+  "SUPABASE_ANON_KEY": "GET_FROM_SUPABASE_DASHBOARD",
+  "SUPABASE_SERVICE_KEY": "GET_FROM_SUPABASE_DASHBOARD",
+  "EMAIL_SMTP_SERVER": "smtp.gmail.com",
+  "EMAIL_SMTP_PORT": "587",
+  "EMAIL_USERNAME": "your_gmail@gmail.com",
+  "EMAIL_PASSWORD": "your_gmail_app_password",
+  "SYSTEM_NAME": "JobSprint Ultra-Recent Automation",
+  "ULTRA_RECENT_MODE": "true",
+  "CANADA_OPTIMIZATION": "true",
+  "DEFAULT_SEARCH_FREQUENCY": "5",
+  "LINKEDIN_RATE_LIMIT": "10",
+  "EMAIL_RATE_LIMIT": "50",
+  "LOG_LEVEL": "INFO"
+}

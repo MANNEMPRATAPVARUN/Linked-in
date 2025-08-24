@@ -1,0 +1,51 @@
+# Railway ignore file
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+
+# Local development files
+.env
+*.db
+*.sqlite
+*.sqlite3
+logs/
+test_*.py
+*_test.py
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# External repositories
+JobSpy/
+Job-apply-AI-agent/
+
+# Local config files
+config.json
+supabase_config.json
