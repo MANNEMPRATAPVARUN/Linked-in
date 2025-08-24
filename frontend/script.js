@@ -131,7 +131,7 @@ async function adminLogin(email, password) {
         // Demo mode - simulate successful admin login
         showAlert('🔐 Demo admin login successful! In production, this would authenticate with the Railway API.', 'success');
         setTimeout(() => {
-            window.location.href = 'admin.html';
+            window.location.href = 'dashboard.html?admin=true';
         }, 2000);
         return;
     }
@@ -143,9 +143,9 @@ async function adminLogin(email, password) {
         });
         
         if (response.success && response.user.is_admin) {
-            showAlert('Admin login successful! Redirecting...', 'success');
+            showAlert('Admin login successful! Redirecting to admin dashboard...', 'success');
             setTimeout(() => {
-                window.location.href = 'admin.html';
+                window.location.href = 'dashboard.html?admin=true';
             }, 1500);
         } else {
             throw new Error('Admin access required');

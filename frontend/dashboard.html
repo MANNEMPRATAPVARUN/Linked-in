@@ -281,5 +281,72 @@
     <!-- Custom JS -->
     <script src="script.js"></script>
     <script src="dashboard.js"></script>
+    <script>
+        // Check if admin mode
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('admin') === 'true';
+
+            if (isAdmin) {
+                // Change navbar color to indicate admin mode
+                const navbar = document.querySelector('.navbar');
+                navbar.classList.remove('bg-primary');
+                navbar.classList.add('bg-danger');
+
+                // Update title
+                document.title = 'JobSprint Admin Dashboard';
+
+                // Add admin badge
+                const navbarBrand = document.querySelector('.navbar-brand');
+                navbarBrand.innerHTML = '<i class="fas fa-shield-alt me-2"></i>JobSprint Admin';
+
+                // Add admin alert
+                const container = document.querySelector('.container.mt-4');
+                const adminAlert = document.createElement('div');
+                adminAlert.className = 'alert alert-warning alert-dismissible fade show mb-4';
+                adminAlert.innerHTML = `
+                    <i class="fas fa-crown me-2"></i>
+                    <strong>Admin Mode:</strong> You have administrative privileges.
+                    <a href="dashboard.html" class="alert-link">Switch to User View</a>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                container.insertBefore(adminAlert, container.firstChild);
+
+                // Show admin features
+                showAdminFeatures();
+            }
+        });
+
+        function showAdminFeatures() {
+            // Add admin-specific content to the dashboard
+            const welcomeCard = document.querySelector('.card-body');
+            if (welcomeCard) {
+                const adminSection = document.createElement('div');
+                adminSection.className = 'mt-3 p-3 bg-light rounded';
+                adminSection.innerHTML = `
+                    <h6><i class="fas fa-tools me-2"></i>Admin Tools</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-sm btn-outline-primary me-2 mb-2" onclick="alert('User management - Connect to backend API')">
+                                <i class="fas fa-users me-1"></i>Manage Users
+                            </button>
+                            <button class="btn btn-sm btn-outline-success me-2 mb-2" onclick="alert('System stats - Connect to backend API')">
+                                <i class="fas fa-chart-bar me-1"></i>System Stats
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-sm btn-outline-warning me-2 mb-2" onclick="alert('System logs - Connect to backend API')">
+                                <i class="fas fa-file-alt me-1"></i>View Logs
+                            </button>
+                            <button class="btn btn-sm btn-outline-info me-2 mb-2" onclick="alert('Settings - Connect to backend API')">
+                                <i class="fas fa-cog me-1"></i>Settings
+                            </button>
+                        </div>
+                    </div>
+                `;
+                welcomeCard.appendChild(adminSection);
+            }
+        }
+    </script>
 </body>
 </html>
