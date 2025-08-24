@@ -35,11 +35,11 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 
 # Enable CORS for frontend
 CORS(app, origins=[
-    'https://*.vercel.app',
-    'https://*.railway.app', 
+    'https://jobsprint-frontend.vercel.app',
+    'https://web-production-f50b3.up.railway.app',
     'http://localhost:3000',
     'http://localhost:5000'
-])
+], supports_credentials=True)
 
 # Initialize managers
 try:
@@ -54,6 +54,20 @@ try:
 except Exception as e:
     logger.error(f"❌ Failed to initialize managers: {e}")
     raise
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://jobsprint-frontend.vercel.app')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+# Handle preflight requests
+@app.route('/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    return '', 200
 
 # Health check endpoint
 @app.route('/health')
