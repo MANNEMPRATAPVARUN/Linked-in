@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-08-24T09:13:50.463196",
+  "backend_health": true,
+  "frontend_availability": true,
+  "authentication": true,
+  "job_search": true,
+  "overall_status": "HEALTHY"
+}
