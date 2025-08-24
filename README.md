@@ -1,6 +1,6 @@
-# 🚀 LinkedIn Job Automation System
+# 🚀 JobSprint - Ultra-Recent Job Automation System
 
-**Never miss a job opportunity again!** This system automatically scrapes jobs from LinkedIn, Indeed, Glassdoor, ZipRecruiter, and Google, filters them based on your preferences, and sends instant email notifications so you can be among the first 5 applicants.
+**Never miss a job opportunity again!** A production-ready job automation system with **ultra-recent filtering** and **Canada-specific targeting** for maximum first applicant advantage. Be among the first to apply with 5-10 minute job discovery!
 
 ## ✨ Features
 
