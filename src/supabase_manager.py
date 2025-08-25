@@ -244,6 +244,21 @@ class SupabaseManager:
             logger.error(f"Error getting job status for user {user_id}, job {job_id}: {e}")
             return None
     
+    # Job Storage Methods
+    def store_job(self, job_data: Dict, user_id: str) -> bool:
+        """Store job data for a user"""
+        try:
+            # For local development, just log the job storage
+            logger.info(f"📝 Storing job for user {user_id}: {job_data.get('title', 'Unknown')} at {job_data.get('company', 'Unknown')}")
+
+            # In production, this would store to Supabase
+            # For now, just return success
+            return True
+
+        except Exception as e:
+            logger.error(f"Error storing job: {e}")
+            return False
+
     # Admin Methods
     def get_system_stats(self) -> Dict:
         """Get system statistics for admin dashboard"""

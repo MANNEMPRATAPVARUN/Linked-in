@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobSprint Dashboard - Ultra-Recent Job Discovery</title>
+    <title>JobSprint Dashboard - Job Automation</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,8 +16,8 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-rocket me-2"></i>JobSprint
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-rocket me-2"></i>JobSprint Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -25,13 +25,18 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.html">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        <a class="nav-link" href="#" onclick="showJobSearch()">
+                            <i class="fas fa-search me-1"></i>Search Jobs
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showPreferences()">
-                            <i class="fas fa-cog me-1"></i>Preferences
+                        <a class="nav-link" href="#" onclick="showUserProfile()">
+                            <i class="fas fa-user me-1"></i>Profile
+                        </a>
+                    </li>
+                    <li class="nav-item" id="adminNavItem" style="display: none;">
+                        <a class="nav-link" href="#" onclick="showAdminPanel()">
+                            <i class="fas fa-shield-alt me-1"></i>Admin
                         </a>
                     </li>
                     <li class="nav-item">
@@ -44,7 +49,7 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Dashboard Content -->
     <div class="container mt-4">
         <!-- Welcome Section -->
         <div class="row mb-4">
@@ -52,15 +57,12 @@
                 <div class="card bg-gradient-primary text-white">
                     <div class="card-body">
                         <h2 class="card-title">
-                            <i class="fas fa-user me-2"></i>Welcome to JobSprint!
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Welcome to JobSprint Dashboard
                         </h2>
-                        <p class="card-text">
-                            Your ultra-recent job automation system is ready. 
-                            Configure your preferences and start discovering jobs posted in the last 5-10 minutes.
+                        <p class="card-text mb-0" id="welcomeMessage">
+                            Ready to discover ultra-recent job opportunities!
                         </p>
-                        <button class="btn btn-light" onclick="showJobSearch()">
-                            <i class="fas fa-search me-2"></i>Start Job Search
-                        </button>
                     </div>
                 </div>
             </div>
@@ -71,56 +73,48 @@
             <div class="col-md-3">
                 <div class="card text-center">
                     <div class="card-body">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
+                        <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
                         <h4 class="card-title" id="totalJobs">0</h4>
-                        <p class="card-text text-muted">Jobs Discovered</p>
+                        <p class="card-text">Total Jobs Found</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card text-center">
                     <div class="card-body">
-                        <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-clock"></i>
-                        </div>
+                        <i class="fas fa-clock fa-2x text-success mb-2"></i>
                         <h4 class="card-title" id="recentJobs">0</h4>
-                        <p class="card-text text-muted">Last 10 Minutes</p>
+                        <p class="card-text">Recent Jobs</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card text-center">
                     <div class="card-body">
-                        <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-envelope"></i>
-                        </div>
+                        <i class="fas fa-bell fa-2x text-warning mb-2"></i>
                         <h4 class="card-title" id="notifications">0</h4>
-                        <p class="card-text text-muted">Notifications Sent</p>
+                        <p class="card-text">Notifications</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card text-center">
                     <div class="card-body">
-                        <div class="feature-icon bg-danger text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-star"></i>
-                        </div>
+                        <i class="fas fa-heart fa-2x text-danger mb-2"></i>
                         <h4 class="card-title" id="savedJobs">0</h4>
-                        <p class="card-text text-muted">Saved Jobs</p>
+                        <p class="card-text">Saved Jobs</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Job Search Section -->
-        <div class="row mb-4">
+        <div class="row mb-4" id="jobSearchSection">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-search me-2"></i>Ultra-Recent Job Search
+                            <i class="fas fa-search me-2"></i>Job Search
                         </h5>
                     </div>
                     <div class="card-body">
@@ -128,14 +122,12 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <label for="keywords" class="form-label">Keywords</label>
-                                    <input type="text" class="form-control" id="keywords" 
-                                           placeholder="e.g., python developer, software engineer" required>
+                                    <input type="text" class="form-control" id="keywords" placeholder="e.g., software engineer" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="location" class="form-label">Location</label>
-                                    <select class="form-select" id="location" required>
-                                        <option value="">Select location...</option>
-                                        <option value="Canada Remote">Canada Remote</option>
+                                    <select class="form-select" id="location">
+                                        <option value="Canada">Canada</option>
                                         <option value="Toronto, ON">Toronto, ON</option>
                                         <option value="Vancouver, BC">Vancouver, BC</option>
                                         <option value="Montreal, QC">Montreal, QC</option>
@@ -143,24 +135,20 @@
                                         <option value="Ottawa, ON">Ottawa, ON</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="timeFilter" class="form-label">Time Filter</label>
                                     <select class="form-select" id="timeFilter">
-                                        <option value="r300">Last 5 minutes (Ultra-Recent)</option>
-                                        <option value="r600">Last 10 minutes</option>
-                                        <option value="r1800">Last 30 minutes</option>
-                                        <option value="r3600" selected>Last 1 hour</option>
                                         <option value="r86400">Last 24 hours</option>
+                                        <option value="r3600">Last 1 hour</option>
+                                        <option value="r1800">Last 30 minutes</option>
+                                        <option value="r600">Last 10 minutes</option>
+                                        <option value="r300">Last 5 minutes</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-2"></i>Search Jobs
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary ms-2" onclick="loadCanadaLocations()">
-                                        <i class="fas fa-map-marked-alt me-2"></i>Load Canada Locations
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-search me-1"></i>Search
                                     </button>
                                 </div>
                             </div>
@@ -171,22 +159,89 @@
         </div>
 
         <!-- Job Results Section -->
-        <div class="row">
+        <div class="row" id="jobResultsSection" style="display: none;">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header">
                         <h5 class="card-title mb-0">
                             <i class="fas fa-list me-2"></i>Job Results
                         </h5>
-                        <span class="badge bg-primary" id="jobCount">0 jobs</span>
                     </div>
                     <div class="card-body">
                         <div id="jobResults">
-                            <div class="text-center text-muted py-5">
-                                <i class="fas fa-search fa-3x mb-3"></i>
-                                <p>Use the search form above to discover ultra-recent job postings</p>
-                                <small>Jobs posted in the last 5-10 minutes will appear here</small>
+                            <!-- Job results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel Section -->
+        <div class="row mt-4" id="adminPanelSection" style="display: none;">
+            <div class="col-12">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>Admin Panel
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>System Status</h6>
+                                <ul class="list-group" id="systemStatusList">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        API Status
+                                        <span class="badge bg-success rounded-pill">Healthy</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        LinkedIn Scraper
+                                        <span class="badge bg-success rounded-pill">Active</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Database
+                                        <span class="badge bg-success rounded-pill">Connected</span>
+                                    </li>
+                                </ul>
                             </div>
+                            <div class="col-md-6">
+                                <h6>Quick Actions</h6>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" onclick="checkSystemHealth()">
+                                        <i class="fas fa-heartbeat me-1"></i>Check System Health
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="viewSystemLogs()">
+                                        <i class="fas fa-file-alt me-1"></i>View System Logs
+                                    </button>
+                                    <button class="btn btn-outline-warning" onclick="loadUserManagement()">
+                                        <i class="fas fa-users me-1"></i>Manage Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div class="row mt-4" id="userManagementSection" style="display: none;">
+            <div class="col-12">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Registered Users</h6>
+                            <button class="btn btn-primary btn-sm" onclick="refreshUserList()">
+                                <i class="fas fa-refresh me-1"></i>Refresh
+                            </button>
+                        </div>
+                        <div id="usersList">
+                            <!-- Users will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -194,158 +249,267 @@
         </div>
     </div>
 
-    <!-- Preferences Modal -->
-    <div class="modal fade" id="preferencesModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-cog me-2"></i>Job Search Preferences
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="preferencesForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="prefKeywords" class="form-label">Default Keywords</label>
-                                <textarea class="form-control" id="prefKeywords" rows="3" 
-                                          placeholder="python developer, software engineer, full stack"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="prefLocations" class="form-label">Preferred Locations</label>
-                                <textarea class="form-control" id="prefLocations" rows="3" 
-                                          placeholder="Canada Remote, Toronto ON, Vancouver BC"></textarea>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-4">
-                                <label for="prefFrequency" class="form-label">Search Frequency</label>
-                                <select class="form-select" id="prefFrequency">
-                                    <option value="5">Every 5 minutes (Ultra-Recent)</option>
-                                    <option value="10">Every 10 minutes</option>
-                                    <option value="15" selected>Every 15 minutes</option>
-                                    <option value="30">Every 30 minutes</option>
-                                    <option value="60">Every hour</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="prefQuality" class="form-label">Quality Threshold</label>
-                                <select class="form-select" id="prefQuality">
-                                    <option value="50">50% - Show all jobs</option>
-                                    <option value="65" selected>65% - Good matches</option>
-                                    <option value="80">80% - High quality only</option>
-                                    <option value="90">90% - Perfect matches</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="prefMaxAge" class="form-label">Max Job Age</label>
-                                <select class="form-select" id="prefMaxAge">
-                                    <option value="1">1 hour (Ultra-Recent)</option>
-                                    <option value="6">6 hours</option>
-                                    <option value="24" selected>24 hours</option>
-                                    <option value="72">3 days</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="enableNotifications" checked>
-                                    <label class="form-check-label" for="enableNotifications">
-                                        Enable email notifications for new jobs
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="enableUltraRecent" checked>
-                                    <label class="form-check-label" for="enableUltraRecent">
-                                        Enable ultra-recent mode (5-10 minute filtering)
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="savePreferences()">
-                        <i class="fas fa-save me-2"></i>Save Preferences
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Alert Container -->
+    <div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="script.js"></script>
-    <script src="dashboard.js"></script>
+
     <script>
-        // Check if admin mode
+        // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isAdmin = urlParams.get('admin') === 'true';
-
-            if (isAdmin) {
-                // Change navbar color to indicate admin mode
-                const navbar = document.querySelector('.navbar');
-                navbar.classList.remove('bg-primary');
-                navbar.classList.add('bg-danger');
-
-                // Update title
-                document.title = 'JobSprint Admin Dashboard';
-
-                // Add admin badge
-                const navbarBrand = document.querySelector('.navbar-brand');
-                navbarBrand.innerHTML = '<i class="fas fa-shield-alt me-2"></i>JobSprint Admin';
-
-                // Add admin alert
-                const container = document.querySelector('.container.mt-4');
-                const adminAlert = document.createElement('div');
-                adminAlert.className = 'alert alert-warning alert-dismissible fade show mb-4';
-                adminAlert.innerHTML = `
-                    <i class="fas fa-crown me-2"></i>
-                    <strong>Admin Mode:</strong> You have administrative privileges.
-                    <a href="dashboard.html" class="alert-link">Switch to User View</a>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                container.insertBefore(adminAlert, container.firstChild);
-
-                // Show admin features
-                showAdminFeatures();
-            }
+            initializeDashboard();
         });
 
-        function showAdminFeatures() {
-            // Add admin-specific content to the dashboard
-            const welcomeCard = document.querySelector('.card-body');
-            if (welcomeCard) {
-                const adminSection = document.createElement('div');
-                adminSection.className = 'mt-3 p-3 bg-light rounded';
-                adminSection.innerHTML = `
-                    <h6><i class="fas fa-tools me-2"></i>Admin Tools</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button class="btn btn-sm btn-outline-primary me-2 mb-2" onclick="alert('User management - Connect to backend API')">
-                                <i class="fas fa-users me-1"></i>Manage Users
-                            </button>
-                            <button class="btn btn-sm btn-outline-success me-2 mb-2" onclick="alert('System stats - Connect to backend API')">
-                                <i class="fas fa-chart-bar me-1"></i>System Stats
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-sm btn-outline-warning me-2 mb-2" onclick="alert('System logs - Connect to backend API')">
-                                <i class="fas fa-file-alt me-1"></i>View Logs
-                            </button>
-                            <button class="btn btn-sm btn-outline-info me-2 mb-2" onclick="alert('Settings - Connect to backend API')">
-                                <i class="fas fa-cog me-1"></i>Settings
-                            </button>
-                        </div>
+        function initializeDashboard() {
+            // Check if user is admin from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('admin') === 'true';
+            
+            if (isAdmin) {
+                document.getElementById('adminNavItem').style.display = 'block';
+                document.getElementById('adminPanelSection').style.display = 'block';
+                document.getElementById('welcomeMessage').textContent = 'Welcome to the Admin Dashboard!';
+            }
+            
+            // Update stats
+            updateStats();
+            
+            // Set up job search form
+            document.getElementById('jobSearchForm').addEventListener('submit', handleJobSearch);
+        }
+
+        async function handleJobSearch(e) {
+            e.preventDefault();
+            
+            const keywords = document.getElementById('keywords').value;
+            const location = document.getElementById('location').value;
+            const timeFilter = document.getElementById('timeFilter').value;
+            
+            if (!keywords) {
+                showAlert('Please enter keywords to search for jobs', 'warning');
+                return;
+            }
+            
+            showAlert('Searching for jobs...', 'info');
+            
+            try {
+                const response = await fetch('/api/jobs/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        keywords: keywords,
+                        location: location,
+                        time_filter: timeFilter,
+                        max_results: 10
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJobResults(data.jobs, data.count);
+                    showAlert(`Found ${data.count} jobs matching your criteria!`, 'success');
+                } else {
+                    showAlert('Job search failed. Please try again.', 'danger');
+                }
+            } catch (error) {
+                console.error('Job search error:', error);
+                showAlert('Job search failed. Please check your connection.', 'danger');
+            }
+        }
+
+        function displayJobResults(jobs, count) {
+            const resultsSection = document.getElementById('jobResultsSection');
+            const resultsContainer = document.getElementById('jobResults');
+            
+            if (count === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No jobs found</h5>
+                        <p class="text-muted">Try different keywords or expand your search criteria.</p>
                     </div>
                 `;
-                welcomeCard.appendChild(adminSection);
+            } else {
+                resultsContainer.innerHTML = jobs.map(job => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${job.title || 'Job Title'}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">${job.company || 'Company'}</h6>
+                            <p class="card-text">
+                                <i class="fas fa-map-marker-alt me-1"></i>${job.location || 'Location'}
+                                <br>
+                                <small class="text-muted">Posted: ${job.date_posted || 'Recently'}</small>
+                            </p>
+                            <a href="${job.job_url || '#'}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>View Job
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
             }
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showJobSearch() {
+            document.getElementById('jobSearchSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('keywords').focus();
+        }
+
+        function showUserProfile() {
+            showAlert('User profile feature coming soon!', 'info');
+        }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanelSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/api/admin/system/status');
+                const data = await response.json();
+
+                if (data.success) {
+                    const status = data.status;
+                    showAlert(`System Status: ${status.api} - Users: ${status.users_count}`, 'success');
+
+                    // Update system status display
+                    const statusList = document.getElementById('systemStatusList');
+                    statusList.innerHTML = `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            API Status
+                            <span class="badge bg-success rounded-pill">${status.api}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            LinkedIn Scraper
+                            <span class="badge bg-success rounded-pill">${status.linkedin_scraper}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Database
+                            <span class="badge bg-success rounded-pill">${status.database}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Users
+                            <span class="badge bg-info rounded-pill">${status.users_count}</span>
+                        </li>
+                    `;
+                } else {
+                    showAlert('Failed to get system status', 'danger');
+                }
+            } catch (error) {
+                showAlert('Failed to check system health', 'danger');
+            }
+        }
+
+        function viewSystemLogs() {
+            showAlert('System logs feature coming soon!', 'info');
+        }
+
+        async function loadUserManagement() {
+            const userMgmtSection = document.getElementById('userManagementSection');
+            userMgmtSection.style.display = 'block';
+            userMgmtSection.scrollIntoView({ behavior: 'smooth' });
+
+            await refreshUserList();
+        }
+
+        async function refreshUserList() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usersList = document.getElementById('usersList');
+
+                    if (data.users.length === 0) {
+                        usersList.innerHTML = '<p class="text-muted">No users found.</p>';
+                        return;
+                    }
+
+                    usersList.innerHTML = `
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.users.map(user => `
+                                        <tr>
+                                            <td>${user.name}</td>
+                                            <td>${user.email}</td>
+                                            <td>
+                                                <span class="badge ${user.is_admin ? 'bg-danger' : 'bg-primary'}">
+                                                    ${user.is_admin ? 'Admin' : 'User'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                ${!user.is_admin ? `
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}', '${user.name}')">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                ` : '<span class="text-muted">Protected</span>'}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+
+                    showAlert(`Loaded ${data.users.length} users`, 'success');
+                } else {
+                    showAlert('Failed to load users', 'danger');
+                }
+            } catch (error) {
+                showAlert('Failed to load users', 'danger');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(`User "${userName}" deleted successfully`, 'success');
+                    await refreshUserList();
+                } else {
+                    showAlert(data.error || 'Failed to delete user', 'danger');
+                }
+            } catch (error) {
+                showAlert('Failed to delete user', 'danger');
+            }
+        }
+
+        function logout() {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(() => {
+                    showAlert('Logged out successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                })
+                .catch(() => {
+                    window.location.href = '/';
+                });
         }
     </script>
 </body>

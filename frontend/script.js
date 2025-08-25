@@ -2,17 +2,12 @@
 
 // Configuration
 const CONFIG = {
-    API_BASE_URL: 'https://web-production-f50b3.up.railway.app/api', // Your Railway API URL
-    LOCAL_API_URL: 'http://localhost:5000/api', // For local development
     DEMO_MODE: false // API is ready - disable demo mode
 };
 
-// Get API URL based on environment
+// Get API URL - always use relative URLs since we're serving from same app
 function getApiUrl() {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return CONFIG.LOCAL_API_URL;
-    }
-    return CONFIG.API_BASE_URL;
+    return '/api';
 }
 
 // Utility Functions
