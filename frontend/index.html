@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSprint Enhanced - LinkedIn Job Alert System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-color) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), #004499);
+            color: white;
+            padding: 4rem 0;
+        }
+        
+        .feature-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .job-card {
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .job-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .sidebar {
+            background-color: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 56px);
+        }
+        
+        .nav-link {
+            color: #666;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .search-form {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-rocket me-2"></i>JobSprint Enhanced
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#search">Job Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#saved">Saved Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-primary ms-2" onclick="showLogin()">Login</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center" id="home">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">Find Your Dream Job with AI-Powered Alerts</h1>
+            <p class="lead mb-4">Enhanced LinkedIn job scraping with real-time notifications, advanced filtering, and personalized recommendations</p>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="search-form">
+                        <form id="quickSearchForm">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="keywords" placeholder="Job title or keywords" value="software engineer">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="location">
+                                        <option value="Canada">Canada</option>
+                                        <option value="Toronto, ON">Toronto, ON</option>
+                                        <option value="Vancouver, BC">Vancouver, BC</option>
+                                        <option value="Montreal, QC">Montreal, QC</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="timeFilter">
+                                        <option value="r86400">Last 24 hours</option>
+                                        <option value="r3600">Last 1 hour</option>
+                                        <option value="r1800">Last 30 minutes</option>
+                                        <option value="r300">Last 5 minutes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-search me-1"></i>Search
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="py-5" id="dashboard">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3">
+                    <div class="sidebar p-3">
+                        <h5 class="mb-3">Dashboard</h5>
+                        <nav class="nav flex-column">
+                            <a class="nav-link active" href="#" onclick="showSection('overview')">
+                                <i class="fas fa-chart-line me-2"></i>Overview
+                            </a>
+                            <a class="nav-link" href="#" onclick="showSection('search')">
+                                <i class="fas fa-search me-2"></i>Job Search
+                            </a>
+                            <a class="nav-link" href="#" onclick="showSection('saved')">
+                                <i class="fas fa-bookmark me-2"></i>Saved Jobs
+                            </a>
+                            <a class="nav-link" href="#" onclick="showSection('alerts')">
+                                <i class="fas fa-bell me-2"></i>Job Alerts
+                            </a>
+                            <a class="nav-link" href="#" onclick="showSection('analytics')">
+                                <i class="fas fa-chart-bar me-2"></i>Analytics
+                            </a>
+                            <a class="nav-link" href="#" onclick="showSection('settings')">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <!-- Overview Section -->
+                    <div id="overview-section" class="dashboard-section">
+                        <h2 class="mb-4">Dashboard Overview</h2>
+                        
+                        <!-- Stats Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                                        <h5 class="card-title">New Jobs</h5>
+                                        <h3 class="text-primary" id="newJobsCount">0</h3>
+                                        <small class="text-muted">Last 24 hours</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-bookmark fa-2x text-success mb-2"></i>
+                                        <h5 class="card-title">Saved Jobs</h5>
+                                        <h3 class="text-success" id="savedJobsCount">0</h3>
+                                        <small class="text-muted">Total saved</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-paper-plane fa-2x text-warning mb-2"></i>
+                                        <h5 class="card-title">Applications</h5>
+                                        <h3 class="text-warning" id="applicationsCount">0</h3>
+                                        <small class="text-muted">This month</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                        <h5 class="card-title">Success Rate</h5>
+                                        <h3 class="text-info" id="successRate">0%</h3>
+                                        <small class="text-muted">Response rate</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Jobs -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Job Matches</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="refreshJobs()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="jobsList">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No jobs found. Try searching with different criteria.</p>
+                                        <button class="btn btn-primary" onclick="showSection('search')">Start Job Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Section -->
+                    <div id="search-section" class="dashboard-section" style="display: none;">
+                        <h2 class="mb-4">Advanced Job Search</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="advancedSearchForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Keywords</label>
+                                            <input type="text" class="form-control" name="keywords" placeholder="e.g., python developer, devops engineer">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Location</label>
+                                            <select class="form-select" name="location">
+                                                <option value="Canada">Canada (All)</option>
+                                                <option value="Toronto, ON">Toronto, Ontario</option>
+                                                <option value="Vancouver, BC">Vancouver, BC</option>
+                                                <option value="Montreal, QC">Montreal, Quebec</option>
+                                                <option value="Calgary, AB">Calgary, Alberta</option>
+                                                <option value="Ottawa, ON">Ottawa, Ontario</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Time Filter</label>
+                                            <select class="form-select" name="timeFilter">
+                                                <option value="r300">Last 5 minutes</option>
+                                                <option value="r1800">Last 30 minutes</option>
+                                                <option value="r3600">Last 1 hour</option>
+                                                <option value="r86400" selected>Last 24 hours</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Max Results</label>
+                                            <select class="form-select" name="maxResults">
+                                                <option value="10">10 jobs</option>
+                                                <option value="25" selected>25 jobs</option>
+                                                <option value="50">50 jobs</option>
+                                                <option value="100">100 jobs</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Job Type</label>
+                                            <select class="form-select" name="jobType">
+                                                <option value="">All Types</option>
+                                                <option value="remote">Remote</option>
+                                                <option value="on-site">On-site</option>
+                                                <option value="hybrid">Hybrid</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary me-2">
+                                                <i class="fas fa-search me-1"></i>Search Jobs
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                                <i class="fas fa-times me-1"></i>Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Results -->
+                        <div id="searchResults" class="mt-4" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Search Results</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="searchResultsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other sections (saved, alerts, etc.) will be added here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to JobSprint Enhanced</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    <hr>
+                    <p class="text-center mb-0">
+                        Don't have an account? 
+                        <a href="#" onclick="showRegister()">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
