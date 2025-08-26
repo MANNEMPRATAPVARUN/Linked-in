@@ -1,15 +1,15 @@
 /**
- * Ì∫Ä JobSprint Enhanced - Frontend JavaScript
+ * ÔøΩÔøΩÔøΩ JobSprint Enhanced - Frontend JavaScript
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:5000';
 const DEMO_MODE = true;
 
 let currentUser = null;
 let currentJobs = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Ì∫Ä JobSprint Enhanced initialized');
+    console.log('ÔøΩÔøΩÔøΩ JobSprint Enhanced initialized');
     setupEventListeners();
     checkBackendHealth();
 });
@@ -41,9 +41,24 @@ async function handleQuickSearch(event) {
 
 async function performJobSearch(params) {
     showSearchLoading(true);
-    
+
     try {
-        let jobs = await simulateJobSearch(params);
+        let jobs;
+        try {
+            // Try to fetch from real API first
+            const response = await fetch(`${API_BASE_URL}/api/search?keywords=${encodeURIComponent(params.keywords || '')}&location=${encodeURIComponent(params.location || '')}&job_type=${encodeURIComponent(params.job_type || '')}`);
+            if (response.ok) {
+                const data = await response.json();
+                jobs = data.jobs;
+                console.log('‚úÖ Fetched jobs from API:', data);
+            } else {
+                throw new Error('API request failed');
+            }
+        } catch (apiError) {
+            console.log('‚ö†Ô∏è API not available, using demo data');
+            jobs = await simulateJobSearch(params);
+        }
+
         currentJobs = jobs;
         displaySearchResults(jobs, params);
         updateDashboardStats();
@@ -106,8 +121,8 @@ function displaySearchResults(jobs, searchParams) {
 }
 
 function createJobCard(job) {
-    const postedDate = new Date(job.posted_date).toLocaleDateString();
-    const salaryRange = job.salary_min && job.salary_max 
+    const postedDate = job.posted_date ? new Date(job.posted_date).toLocaleDateString() : job.posted || 'Recently';
+    const salaryRange = job.salary_min && job.salary_max
         ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}`
         : 'Salary not specified';
     
@@ -117,7 +132,7 @@ function createJobCard(job) {
                 <div class="row">
                     <div class="col-md-8">
                         <h5 class="card-title">
-                            <a href="${job.job_url}" target="_blank" class="text-decoration-none">
+                            <a href="${job.job_url || '#'}" target="_blank" class="text-decoration-none">
                                 ${job.title}
                             </a>
                         </h5>
@@ -129,6 +144,7 @@ function createJobCard(job) {
                             <span class="ms-3">
                                 <i class="fas fa-calendar me-1"></i>Posted ${postedDate}
                             </span>
+                            ${job.type ? `<span class="ms-3 badge bg-info">${job.type}</span>` : ''}
                         </p>
                         <p class="card-text">${job.description.substring(0, 150)}...</p>
                         <p class="card-text">
